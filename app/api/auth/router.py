@@ -9,6 +9,8 @@ from app.models.database import db_helper as db
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.schemas.auth import UserOut
+
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 YANDEX_AUTH_URL = "https://oauth.yandex.ru/authorize"
@@ -27,7 +29,7 @@ async def login():
     return RedirectResponse(auth_url)
 
 
-@router.get("/callback")
+@router.get("/callback", response_model=UserOut)
 async def auth_callback(
     request: Request, session: AsyncSession = Depends(db.session_getter)
 ):
