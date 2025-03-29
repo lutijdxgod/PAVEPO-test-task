@@ -9,7 +9,9 @@ from app.models.database import db_helper as db
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.oauth2 import create_access_token
 from app.schemas.auth import UserOut
+from app.schemas.token import Token
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -29,7 +31,7 @@ async def login():
     return RedirectResponse(auth_url)
 
 
-@router.get("/callback", response_model=UserOut)
+@router.get("/callback", response_model=Token)
 async def auth_callback(
     request: Request, session: AsyncSession = Depends(db.session_getter)
 ):
@@ -82,4 +84,10 @@ async def auth_callback(
             await session.refresh(new_user)
             user = new_user
 
-        return user
+        access_token = create_access_token(data={"user_id": user.id})
+
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "user_id": str(user.id),
+        }

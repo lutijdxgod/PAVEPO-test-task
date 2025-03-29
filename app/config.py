@@ -24,6 +24,12 @@ class Yandex(BaseModel):
     redirect_uri: str
 
 
+class Auth(BaseModel):
+    secret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", env_nested_delimiter="__"
@@ -31,6 +37,7 @@ class Settings(BaseSettings):
 
     db: Database
     yandex: Yandex
+    auth: Auth
 
 
 settings = Settings()
