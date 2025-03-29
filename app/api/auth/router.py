@@ -9,7 +9,7 @@ from app.models.database import db_helper as db
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.oauth2 import create_access_token
+from app.oauth2 import create_access_token, get_current_user
 from app.schemas.auth import UserOut
 from app.schemas.token import Token
 
@@ -91,3 +91,16 @@ async def auth_callback(
             "token_type": "bearer",
             "user_id": str(user.id),
         }
+
+
+@router.get("/update_access_token", response_model=Token)
+async def update_access_token(
+    user: UserOut = Depends(get_current_user),
+):
+    access_token = create_access_token(data={"user_id": user.id})
+
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": str(user.id),
+    }
