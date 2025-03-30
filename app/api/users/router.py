@@ -1,18 +1,12 @@
 from pathlib import Path
-import shutil
 from fastapi import (
     APIRouter,
     Depends,
     HTTPException,
-    Query,
     Response,
-    UploadFile,
     status,
 )
-from app.api.users.utils import validate_audio_file
-from app.config import settings
 from app.crud.users import get_user_audiofiles, update_user_info
-from app.models import models
 from app.models.database import db_helper as db
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,43 +43,6 @@ async def update_info(
         status_code=status.HTTP_200_OK,
         content="Successfully updated user's info",
     )
-
-
-@router.post("/upload_audiofile")
-async def upload_audiofile(
-    file: UploadFile = Depends(validate_audio_file),
-    filename: str | None = Query(),
-    session: AsyncSession = Depends(db.session_getter),
-    current_user: UserOut = Depends(get_current_user),
-):
-    upload_dir = Path("uploaded_audiofiles")
-    upload_dir.mkdir(exist_ok=True)
-
-    new_filename = file.filename
-    if filename:
-        new_filename = filename + Path(file.filename).suffix
-
-    file_path = upload_dir / new_filename
-
-    if file_path.exists():
-        raise HTTPException(
-            status_code=400, detail="Файл с таким именем уже существует."
-        )
-
-    with file_path.open("wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    new_file = models.AudioFile(
-        **{
-            "filename": new_filename,
-            "filepath": str(file_path),
-            "owner_id": current_user.id,
-        }
-    )
-    session.add(new_file)
-    await session.commit()
-
-    return {"filename": new_filename, "message": "Файл успешно загружен."}
 
 
 @router.get("/audiofiles", response_model=list[FileOut])
