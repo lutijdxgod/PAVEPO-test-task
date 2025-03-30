@@ -3,3 +3,4 @@ __pycache__
 .env
 alembic.ini
 uploaded_audiofiles
+pgdata
