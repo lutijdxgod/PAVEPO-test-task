@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .api.auth.router import router as auth_router
 from .api.users.router import router as users_router
+from .api.audiofiles.router import router as audiofiles_router
 
 app = FastAPI()
 
@@ -15,7 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-routers = [auth_router, users_router]
+routers = [auth_router, users_router, audiofiles_router]
 for router in routers:
     app.include_router(router)
 
