@@ -18,7 +18,7 @@ router = APIRouter(prefix="/audiofiles", tags=["Audiofiles"])
 @router.post("/upload")
 async def upload_audiofile(
     file: UploadFile = Depends(validate_audio_file),
-    filename: str | None = Query(),
+    filename: str | None = Query(default=None),
     session: AsyncSession = Depends(db.session_getter),
     current_user: UserOut = Depends(get_current_user),
 ):
